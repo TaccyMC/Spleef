@@ -231,7 +231,7 @@ public class ActiveGameState extends GameState {
             }
 
             // VOID DEATH
-            if (e.getTo().getBlockY() < 180 && bp.isAlive()) {
+            if (e.getTo().getBlockY() < 62 && bp.isAlive()) {
                 if (bp.getLastHitBy() != null) {
                     SpleefPlayer creditedPlayer = bp.getLastHitBy();
                     game.kill(bp, creditedPlayer, DeathReason.KNOCK_VOID);
