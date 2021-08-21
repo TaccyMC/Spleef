@@ -5,15 +5,13 @@ import net.taccy.spleef.Spleef;
 import net.taccy.spleef.event.Event;
 import net.taccy.spleef.game.*;
 import net.taccy.spleef.powerup.PowerupBlock;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -60,6 +58,7 @@ public class ActiveGameState extends GameState {
         for (SpleefPlayer bp : game.getPlayers()) {
             pl.su.success4(bp.getPlayer().getLocation());
             game.giveItems(bp.getPlayer());
+            bp.getPlayer().setGameMode(GameMode.SURVIVAL);
         }
     }
 
@@ -232,7 +231,7 @@ public class ActiveGameState extends GameState {
             }
 
             // VOID DEATH
-            if (e.getTo().getBlockY() < 40 && bp.isAlive()) {
+            if (e.getTo().getBlockY() < 180 && bp.isAlive()) {
                 if (bp.getLastHitBy() != null) {
                     SpleefPlayer creditedPlayer = bp.getLastHitBy();
                     game.kill(bp, creditedPlayer, DeathReason.KNOCK_VOID);
@@ -249,10 +248,21 @@ public class ActiveGameState extends GameState {
     public void onDrop(PlayerDropItemEvent e) {
         Game playersGame = pl.gm.getGameFromPlayer(e.getPlayer());
         Player p = e.getPlayer();
-        SpleefPlayer bp = pl.gm.getLaunchPlayerFromPlayer(p);
 
         if (playersGame == game) {
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onBreak(BlockBreakEvent e) {
+        Game playersGame = pl.gm.getGameFromPlayer(e.getPlayer());
+        Player p = e.getPlayer();
+        SpleefPlayer bp = pl.gm.getLaunchPlayerFromPlayer(p);
+
+        if (playersGame == game) {
+            e.setDropItems(false);
+            bp.getBroken().add(e.getBlock());
         }
     }
 

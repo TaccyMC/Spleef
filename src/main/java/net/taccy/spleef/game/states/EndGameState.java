@@ -6,6 +6,8 @@ import net.taccy.spleef.game.GameState;
 import net.taccy.spleef.game.GameStateType;
 import net.taccy.spleef.game.SpleefPlayer;
 import net.taccy.spleef.powerup.PowerupBlock;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -27,7 +29,15 @@ public class EndGameState extends GameState {
     public void onEnable(Spleef pl) {
         super.onEnable(pl);
 
-        SpleefPlayer winner = game.getPlayerMostKills();
+        SpleefPlayer winner;
+
+        if (game.getAlivePlayers().size() > 1) {
+            winner = game.getPlayerMostKills();
+        } else {
+            winner = game.getAlivePlayers().get(0);
+        }
+
+        restoreBlocks();
 
         for (SpleefPlayer bp : game.getPlayers()) {
             pl.su.success3(bp.getPlayer().getLocation());
@@ -59,6 +69,15 @@ public class EndGameState extends GameState {
     public void onDisable(Spleef pl) {
         super.onDisable(pl);
         game.resetData();
+    }
+
+    public void restoreBlocks() {
+        for (SpleefPlayer sp : game.getPlayers()) {
+            for (Block b : sp.getBroken()) {
+                // todo: have this automatically depend on ground block detected
+                b.setType(Material.SNOW_BLOCK);
+            }
+        }
     }
 
     @EventHandler

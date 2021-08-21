@@ -176,7 +176,7 @@ public class Game {
         updateScoreboards();
     }
 
-    public void kill(SpleefPlayer target, SpleefPlayer killer, DeathReason reason) { // todo: KILL MESSAGES (from UltiBow basically)
+    public void kill(SpleefPlayer target, SpleefPlayer killer, DeathReason reason) {
         preparePlayer(target.getPlayer());
 
         target.setAlive(false);
@@ -184,6 +184,10 @@ public class Game {
         target.getPlayer().setGameMode(GameMode.SPECTATOR);
         target.setLastHitBy(null);
         deathTimes.put(target, timeLeft);
+
+        if (getAlivePlayers().size() < 2) {
+            setGameState(new EndGameState(this, pl));
+        }
 
         if (killer != null) {
             upgradeKnockback(killer);
@@ -251,6 +255,16 @@ public class Game {
             }
         }
         return null;
+    }
+
+    public List<SpleefPlayer> getAlivePlayers() {
+        List<SpleefPlayer> alivePlayers = new ArrayList<>();
+        for (SpleefPlayer sp : players) {
+            if (sp.isAlive()) {
+                alivePlayers.add(sp);
+            }
+        }
+        return alivePlayers;
     }
 
     public SpleefPlayer getPlayerMostKills() {
