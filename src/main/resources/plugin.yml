@@ -1,0 +1,7 @@
+name: Spleef
+version: ${project.version}
+main: net.taccy.spleef.Spleef
+api-version: 1.16
+
+commands:
+  spleef:
