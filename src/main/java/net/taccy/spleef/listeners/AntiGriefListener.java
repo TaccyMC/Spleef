@@ -37,10 +37,9 @@ public class AntiGriefListener implements Listener {
         Player p = e.getPlayer();
 
         if (pl.gm.getGameFromPlayer(p) != null) {
-            if (p.hasPermission("spleef.bypass.grief") || e.getBlock().getType() == Material.SNOW_BLOCK) {
-                return;
+            if (e.getBlock().getType() != Material.SNOW_BLOCK) {
+                e.setCancelled(true);
             }
-            e.setCancelled(true);
         }
     }
 

@@ -22,7 +22,7 @@ public class LobbyGameState extends GameState {
     @Override
     public void onEnable(Spleef pl) {
         // generate event list
-        game.getEvents().addAll(pl.em.getRandomEventSequence(game, 2));
+        //game.getEvents().addAll(pl.em.getRandomEventSequence(game, 2));
     }
 
     @EventHandler

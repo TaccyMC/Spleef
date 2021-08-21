@@ -150,7 +150,7 @@ public class ActiveGameState extends GameState {
         // running tick of events
         // basically just getting the instance of the current event from its index and running the 'runTick' function
         // with the relative time since execution
-        if (game.getEvents() != null && game.getEventIndex() != -1 && game.getEvents().get(game.getEventIndex()) != null) {
+        if (game.getEvents() != null && game.getEvents().size() > 0 && game.getEventIndex() != -1 && game.getEvents().get(game.getEventIndex()) != null) {
             Event event = game.getEvents().get(game.getEventIndex());
 
             event.runTick(timeElapsed - executionTimeOfLastEvent);
@@ -206,7 +206,7 @@ public class ActiveGameState extends GameState {
     public void onMove(PlayerMoveEvent e) {
         Game playersGame = pl.gm.getGameFromPlayer(e.getPlayer());
         Player p = e.getPlayer();
-        SpleefPlayer bp = pl.gm.getLaunchPlayerFromPlayer(p);
+        SpleefPlayer sp = pl.gm.getLaunchPlayerFromPlayer(p);
 
         if (playersGame == game) {
             if (game.isPaused()) {
@@ -218,7 +218,8 @@ public class ActiveGameState extends GameState {
                 }
             }
 
-            if (game.getSpleefPlayerFromPlayer(p).isAlive()) {
+            if (sp.isAlive()) {
+                // collection of powerups
                 Iterator itr = game.getPowerups().iterator();
 
                 while (itr.hasNext()) {
@@ -228,17 +229,35 @@ public class ActiveGameState extends GameState {
                         itr.remove();
                     }
                 }
+
+                // kill creditor
+                SpleefPlayer breaker = game.getBreaker(p.getLocation().getBlock());
+                if (breaker != null && sp.getLastFellThrough() == null) {
+                    sp.setLastFellThrough(breaker);
+                    //sp.getPlayer().sendMessage("you fell through " + game.getBreaker(e.getPlayer().getLocation().getBlock()) + "'s block");
+                }
+
+                // remove kill credit on land
+                if (e.getTo().getBlock().getRelative(0, -1, 0).getType() != Material.AIR) {
+                    sp.setLastFellThrough(null);
+                    sp.setLastHitBy(null);
+                }
             }
 
+
             // VOID DEATH
-            if (e.getTo().getBlockY() < 62 && bp.isAlive()) {
-                if (bp.getLastHitBy() != null) {
-                    SpleefPlayer creditedPlayer = bp.getLastHitBy();
-                    game.kill(bp, creditedPlayer, DeathReason.KNOCK_VOID);
+            if (e.getTo().getBlockY() < 62 && sp.isAlive()) {
+                if (sp.getLastHitBy() != null) {
+                    SpleefPlayer creditedPlayer = sp.getLastHitBy();
+                    game.kill(sp, creditedPlayer, DeathReason.KNOCK_VOID);
                     return;
                 }
 
-                game.kill(bp, null, DeathReason.NONE);
+                if (sp.getLastFellThrough() != null && sp.getLastFellThrough() != sp) {
+                    game.kill(sp, sp.getLastFellThrough(), DeathReason.PLAYER);
+                } else {
+                    game.kill(sp, null, DeathReason.NONE);
+                }
             }
 
         }
@@ -261,8 +280,14 @@ public class ActiveGameState extends GameState {
         SpleefPlayer bp = pl.gm.getLaunchPlayerFromPlayer(p);
 
         if (playersGame == game) {
+            if (game.getState().getType() != GameStateType.ACTIVE) {
+                e.setCancelled(true);
+                return;
+            }
             e.setDropItems(false);
-            bp.getBroken().add(e.getBlock());
+            if (e.getBlock().getType() == Material.SNOW_BLOCK) {
+                bp.getBroken().add(e.getBlock());
+            }
         }
     }
 

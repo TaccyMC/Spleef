@@ -14,7 +14,9 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -185,10 +187,6 @@ public class Game {
         target.setLastHitBy(null);
         deathTimes.put(target, timeLeft);
 
-        if (getAlivePlayers().size() < 2) {
-            setGameState(new EndGameState(this, pl));
-        }
-
         if (killer != null) {
             upgradeKnockback(killer);
         }
@@ -238,6 +236,10 @@ public class Game {
         pl.su.error(target.getPlayer().getLocation());
         target.getPlayer().sendMessage(Colorize.color("&a⚝&f You have been &aeliminated!"));
         updateScoreboards();
+
+        if (getAlivePlayers().size() < 2) {
+            setGameState(new EndGameState(this, pl));
+        }
     }
 
     public void respawn(SpleefPlayer lp) {
@@ -267,6 +269,15 @@ public class Game {
         return alivePlayers;
     }
 
+    public SpleefPlayer getBreaker(Block block) {
+        for (SpleefPlayer sp : players) {
+            if (sp.getBroken().contains(block)) {
+                return sp;
+            }
+        }
+        return null;
+    }
+
     public SpleefPlayer getPlayerMostKills() {
         Map<SpleefPlayer, Integer> kills = new HashMap<>();
 
@@ -292,7 +303,7 @@ public class Game {
     }
 
     public void preparePlayer(Player p) {
-        p.setGameMode(GameMode.ADVENTURE);
+        p.setGameMode(GameMode.SURVIVAL);
         p.getInventory().clear();
         p.setFireTicks(0);
         p.setExp(0);

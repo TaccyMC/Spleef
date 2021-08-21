@@ -1,5 +1,6 @@
 package net.taccy.spleef.game;
 
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -14,6 +15,7 @@ public class SpleefPlayer {
     private int deaths = 0;
     private List<Block> broken = new ArrayList<>();
     private SpleefPlayer lastHitBy;
+    private SpleefPlayer lastFellThrough;
 
     public Player getPlayer() {
         return player;
@@ -33,6 +35,9 @@ public class SpleefPlayer {
     public SpleefPlayer getLastHitBy() {
         return lastHitBy;
     }
+    public SpleefPlayer getLastFellThrough() {
+        return lastFellThrough;
+    }
 
     public void setPlayer(Player player) {
         this.player = player;
@@ -48,6 +53,9 @@ public class SpleefPlayer {
     }
     public void setLastHitBy(SpleefPlayer lastHitBy) {
         this.lastHitBy = lastHitBy;
+    }
+    public void setLastFellThrough(SpleefPlayer lastFellThrough) {
+        this.lastFellThrough = lastFellThrough;
     }
 
 }
