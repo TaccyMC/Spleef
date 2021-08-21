@@ -41,7 +41,7 @@ public class ScoreboardManager {
 
         String date = new SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().getTime());
 
-        if (bp == null || game == null) {
+        if (bp == null) {
             return;
         }
 
@@ -57,7 +57,7 @@ public class ScoreboardManager {
             }
             lines.add(" ");
             lines.add("&fKills: &d" + bp.getKills());
-            lines.add("&fDeaths: &d" + bp.getDeaths());
+            //lines.add("&fDeaths: &d" + bp.getDeaths());
             if (game.getPlayerMostKills() != null) {
                 lines.add("&fTop Killer: &d" + game.getPlayerMostKills().getPlayer().getName() + " &7(" + game.getPlayerMostKills().getKills() + ")");
             }
@@ -71,7 +71,7 @@ public class ScoreboardManager {
         lines.add("   ");
         lines.add("&7Happy Birthday Carl!");
 
-        Integer i = lines.size();
+        int i = lines.size();
         for (String line : lines) {
             Score scoreLine = obj.getScore(Colorize.color(line));
             scoreLine.setScore(i);
