@@ -203,81 +203,17 @@ public class ActiveGameState extends GameState {
         }
     }
 
-    // killing players from arrows
     @EventHandler
-    public void onDamagePlayer(EntityDamageByEntityEvent e) {
-        if (e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
-            Game playersGame = pl.gm.getGameFromPlayer(p);
-            SpleefPlayer bp = pl.gm.getLaunchPlayerFromPlayer(p);
-            if (playersGame == game) { // checks if the game the player is in is the game that the game state relates to
-                if (e.getDamager().getType() == EntityType.ARROW && e.getDamager().getCustomName() != null) { // checks it was an arrow and that theres a name
-                    if (!e.getDamager().getCustomName().equalsIgnoreCase(p.getName()) && bp.isAlive()) { // stops players killing themselves
-                        game.kill(bp, game.getSpleefPlayerFromPlayer(Bukkit.getPlayer(e.getDamager().getCustomName())), DeathReason.PLAYER);
-                    }
-                }
-            }
-        }
-    }
-
-    // tagging arrows when shot
-    @EventHandler
-    public void onShootArrow(EntityShootBowEvent e) {
-        if (e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
-            Game playersGame = pl.gm.getGameFromPlayer(p);
-            SpleefPlayer bp = pl.gm.getLaunchPlayerFromPlayer(p);
-            if (playersGame == game) {
-                if (game.isPaused()) {
-                    if (!p.hasPermission("launchify.bypass.pause")) {
-                        e.setCancelled(true); // cancel shoot arrow when game paused unless bypass permission
-                        return;
-                    }
-                }
-
-                Entity arrow = e.getProjectile();
-                arrow.setCustomName(p.getName());
-            }
-        }
-    }
-
-    // deleting arrow on land & managing shot powerups
-    @EventHandler
-    public void onProjectileLand(ProjectileHitEvent e) {
-        if (e.getEntity().getType() == EntityType.ARROW && e.getEntity().getCustomName() != null) { // checks it was an arrow and that theres a name
-            Player p = Bukkit.getPlayer(e.getEntity().getCustomName());
-            SpleefPlayer bp = game.getSpleefPlayerFromPlayer(p);
-            Game playersGame = pl.gm.getGameFromPlayer(Bukkit.getPlayer(e.getEntity().getCustomName()));
-            if (bp != null && playersGame == game) {
-                e.getEntity().remove();
-
-                Iterator itr = game.getPowerups().iterator();
-                while (itr.hasNext()) {
-                    PowerupBlock pb = (PowerupBlock) itr.next();
-                    if (e.getHitBlock() == null || pb.getLocation() == null) {
-                        return;
-                    }
-                    if (pb.getLocation().getBlockX() == e.getHitBlock().getLocation().getBlockX()
-                            && pb.getLocation().getBlockZ() == e.getHitBlock().getLocation().getBlockZ()) {
-                        pb.collect(p);
-                        itr.remove();
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    public void onMove(PlayerMoveEvent e) { // todo: potentially stop movement when game paused? (check perms)
+    public void onMove(PlayerMoveEvent e) {
         Game playersGame = pl.gm.getGameFromPlayer(e.getPlayer());
         Player p = e.getPlayer();
         SpleefPlayer bp = pl.gm.getLaunchPlayerFromPlayer(p);
 
         if (playersGame == game) {
             if (game.isPaused()) {
-                if (!p.hasPermission("launchify.bypass.pause")) {
+                if (!p.hasPermission("spleef.bypass.pause")) {
                     if (e.getTo().getBlockX() != e.getFrom().getBlockX() || e.getTo().getBlockZ() != e.getFrom().getBlockZ()) {
-                        e.setCancelled(true); // todo: check this pause works
+                        e.setCancelled(true);
                         return;
                     }
                 }
@@ -293,11 +229,6 @@ public class ActiveGameState extends GameState {
                         itr.remove();
                     }
                 }
-            }
-
-            // LAUNCHERS
-            if (bp.isAlive()) {
-                pl.lm.handleLaunchers(e);
             }
 
             // VOID DEATH
